@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "232941533210",
+    "project_id": "puzzle-hunt-26298",
+    "storage_bucket": "puzzle-hunt-26298.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:232941533210:android:53e499d6e48259e8ceb9a3",
+        "android_client_info": {
+          "package_name": "com.example.haight_puzzle_hunt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHlfxLeAZP_A5OQBxtmsoaU-k8IExhx7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

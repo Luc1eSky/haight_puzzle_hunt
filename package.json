@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@google-cloud/storage": "^7.14.0",
+    "dotenv": "^17.2.1",
+    "firebase-functions": "^6.4.0"
+  },
+  "devDependencies": {
+    "typescript": "5.1"
+  }
+}
