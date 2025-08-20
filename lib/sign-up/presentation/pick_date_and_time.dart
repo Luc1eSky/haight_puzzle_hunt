@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:haight_puzzle_hunt/sign-up/data/game_repository.dart';
+import 'package:haight_puzzle_hunt/sign-up/presentation/cancel_screen.dart';
 import 'package:haight_puzzle_hunt/sign-up/presentation/confirmation_screen.dart';
+import 'package:haight_puzzle_hunt/sign-up/presentation/phone_input.dart';
+import 'package:haight_puzzle_hunt/sign-up/presentation/submit_button_controller.dart';
 import 'package:intl/intl.dart';
+
+import '../../config/app_globals.dart';
+import '../config/booking_time_config.dart';
+import '../config/date_booking_limits.dart';
 
 class PickDateAndTime extends StatefulWidget {
   const PickDateAndTime({super.key});
@@ -49,9 +56,9 @@ class _PickDateAndTimeState extends State<PickDateAndTime> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      //crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _PhoneInputField(
+        PhoneInputField(
           controller: phoneController,
           onValidNumber: (value) {
             setState(() {
@@ -86,68 +93,12 @@ class _PickDateAndTimeState extends State<PickDateAndTime> {
           phoneNumber: cleanedPhoneNumber,
           selectedDate: selectedDate,
         ),
+        const SizedBox(height: 12),
+        CancelButton(
+          phoneNumber: cleanedPhoneNumber,
+          selectedDate: selectedDate,
+        ),
       ],
-    );
-  }
-}
-
-class _UsNumberTextInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    final buffer = StringBuffer();
-
-    for (int i = 0; i < digitsOnly.length; i++) {
-      if (i == 0) buffer.write('(');
-      if (i == 3) buffer.write(') ');
-      if (i == 6) buffer.write('-');
-      if (i >= 10) break;
-      buffer.write(digitsOnly[i]);
-    }
-
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
-    );
-  }
-}
-
-class _PhoneInputField extends StatelessWidget {
-  final TextEditingController controller;
-  final void Function(String) onValidNumber;
-
-  const _PhoneInputField({
-    required this.controller,
-    required this.onValidNumber,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.phone,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        _UsNumberTextInputFormatter(),
-      ],
-      decoration: const InputDecoration(
-        labelText: 'Phone Number',
-        hintText: '(123) 456-7890',
-        labelStyle: TextStyle(fontFamily: 'RockSalt', color: Colors.black),
-        border: OutlineInputBorder(),
-      ),
-      style: const TextStyle(fontFamily: 'RockSalt', color: Colors.black),
-      onChanged: (value) {
-        final digits = value.replaceAll(RegExp(r'[^\d]'), '');
-        if (digits.length == 10) {
-          onValidNumber('+1$digits');
-        } else {
-          onValidNumber('');
-        }
-      },
     );
   }
 }
@@ -158,46 +109,14 @@ class _DateSelector extends StatelessWidget {
 
   const _DateSelector({required this.pickedDate, required this.onDateChanged});
 
-  // Returns the next available Thu–Sun
-  DateTime _nextAvailable(DateTime from) {
-    DateTime next = from.add(const Duration(days: 1));
-    while (next.weekday < 4 || next.weekday > 7) {
-      next = next.add(const Duration(days: 1));
-    }
-    return next;
-  }
-
-  // Returns the previous available Thu–Sun
-  DateTime _previousAvailable(DateTime from) {
-    DateTime prev = from.subtract(const Duration(days: 1));
-    while (prev.weekday < 4 || prev.weekday > 7) {
-      prev = prev.subtract(const Duration(days: 1));
-    }
-    return prev;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final threeMonthsLater = DateTime(today.year, today.month + 3, today.day);
+    final minDate = getMinBookingDate();
+    final maxDate = getMaxBookingDate();
+    final picked = pickedDate != null ? toMidnight(pickedDate!) : null;
 
-    // Find the earliest and latest available dates (Thu–Sun only)
-    DateTime? minDate;
-    DateTime tempMin = today;
-    while (tempMin.weekday < 4 || tempMin.weekday > 7) {
-      tempMin = tempMin.add(const Duration(days: 1));
-    }
-    minDate = tempMin;
-
-    DateTime? maxDate;
-    DateTime tempMax = threeMonthsLater;
-    while (tempMax.weekday < 4 || tempMax.weekday > 7) {
-      tempMax = tempMax.subtract(const Duration(days: 1));
-    }
-    maxDate = tempMax;
-
-    final canGoBack = pickedDate != null && pickedDate!.isAfter(minDate);
-    final canGoForward = pickedDate != null && pickedDate!.isBefore(maxDate);
+    final canGoBack = picked != null && picked.isAfter(minDate);
+    final canGoForward = picked != null && picked.isBefore(maxDate);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -207,10 +126,8 @@ class _DateSelector extends StatelessWidget {
           onPressed:
               canGoBack
                   ? () {
-                    final prev = _previousAvailable(pickedDate!);
-                    if (!prev.isBefore(minDate!)) {
-                      onDateChanged(prev);
-                    }
+                    final prev = previousAvailable(picked);
+                    onDateChanged(prev.isBefore(minDate) ? minDate : prev);
                   }
                   : null,
         ),
@@ -218,21 +135,18 @@ class _DateSelector extends StatelessWidget {
         const SizedBox(width: 10),
         TextButton(
           onPressed: () async {
-            DateTime initial = pickedDate ?? minDate!;
             final date = await showDatePicker(
               context: context,
-              initialDate: initial,
-              firstDate: minDate!,
-              lastDate: maxDate!,
-              selectableDayPredicate: (d) => d.weekday >= 4 && d.weekday <= 7,
+              initialDate: picked ?? minDate,
+              firstDate: minDate,
+              lastDate: maxDate,
+              selectableDayPredicate: isThuSun,
             );
-            if (date != null) {
-              onDateChanged(date);
-            }
+            if (date != null) onDateChanged(date);
           },
           child: Text(
-            pickedDate != null
-                ? DateFormat('EEEE, MMM d').format(pickedDate!)
+            picked != null
+                ? DateFormat('EEEE, MMM d').format(picked)
                 : "Choose a date",
             style: const TextStyle(
               fontFamily: 'RockSalt',
@@ -246,10 +160,8 @@ class _DateSelector extends StatelessWidget {
           onPressed:
               canGoForward
                   ? () {
-                    final next = _nextAvailable(pickedDate!);
-                    if (!next.isAfter(maxDate!)) {
-                      onDateChanged(next);
-                    }
+                    final next = nextAvailable(picked);
+                    onDateChanged(next.isAfter(maxDate) ? maxDate : next);
                   }
                   : null,
         ),
@@ -268,15 +180,41 @@ class _TimeSlotSelector extends ConsumerWidget {
     required this.pickedDate,
     required this.onTimeSelected,
   });
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookedSlotsAsync = ref.watch(bookedSlotsProvider(pickedDate));
 
+    final now = DateTime.now();
+    final cutoff = now.add(Duration(hours: sameDayCutoffHours));
+    final isSameDay = DateUtils.isSameDay(pickedDate, now);
+
+    final baseSlots = generateBaseSlots();
+
+    final visibleSlots =
+        baseSlots.where((t) {
+          if (!isSameDay) return true;
+          final slotDT = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            t.hour,
+            t.minute,
+          );
+          // keep if slot >= cutoff
+          return !slotDT.isBefore(cutoff);
+        }).toList();
+
     return bookedSlotsAsync.when(
-      loading: () => Center(child: const CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Text('Error loading slots: $e'),
       data: (bookedSlots) {
+        if (visibleSlots.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: Text("No time slots left today. Please pick another day."),
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -289,35 +227,35 @@ class _TimeSlotSelector extends ConsumerWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: List.generate(5, (i) {
-                  final time = TimeOfDay(hour: 12 + i, minute: 0);
-                  final label = time.format(context);
-                  final isBooked = bookedSlots.contains(time);
-                  final isSelected = selectedTime == time;
+                children:
+                    visibleSlots.map((time) {
+                      final label = time.format(context);
+                      final isBooked = bookedSlots.contains(time);
+                      final isSelected = selectedTime == time;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: ChoiceChip(
-                      label: Text(label),
-                      selected: isSelected,
-                      onSelected:
-                          isBooked
-                              ? null
-                              : (_) {
-                                final combinedDate = DateTime(
-                                  pickedDate.year,
-                                  pickedDate.month,
-                                  pickedDate.day,
-                                  time.hour,
-                                  time.minute,
-                                );
-                                onTimeSelected(time, combinedDate);
-                              },
-                      selectedColor: Colors.deepPurple.shade100,
-                      disabledColor: Colors.grey.shade300,
-                    ),
-                  );
-                }),
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: ChoiceChip(
+                          label: Text(label),
+                          selected: isSelected,
+                          onSelected:
+                              isBooked
+                                  ? null
+                                  : (_) {
+                                    final combinedDate = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      time.hour,
+                                      time.minute,
+                                    );
+                                    onTimeSelected(time, combinedDate);
+                                  },
+                          selectedColor: Colors.deepPurple.shade100,
+                          disabledColor: Colors.grey.shade300,
+                        ),
+                      );
+                    }).toList(),
               ),
             ),
           ],
@@ -339,58 +277,121 @@ class SubmitButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(
-      onPressed: () async {
-        if (phoneNumber == null || phoneNumber!.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Please enter a valid 10-digit US phone number"),
-            ),
-          );
-          return;
-        }
+    final bookingState = ref.watch(bookingControllerProvider);
 
-        if (selectedDate == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Please choose a date and time")),
-          );
-          return;
-        }
-
-        try {
-          //throw Exception('test exception');
-          await ref
-              .read(gameRepositoryProvider)
-              .submitGame(phoneNumber: phoneNumber, timeSlot: selectedDate);
-
-          // Navigate after successful submission
-          if (context.mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => ConfirmationScreen(
-                      phone: phoneNumber!,
-                      date: selectedDate!,
-                    ),
-              ),
-            );
-          }
-        } catch (e) {
+    // Centralized SnackBars for errors (optional, nice UX)
+    ref.listen(bookingControllerProvider, (prev, next) {
+      next.whenOrNull(
+        error: (e, _) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Failed to submit: $e')));
-        }
-      },
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        },
+      );
+    });
+
+    return ElevatedButton(
+      onPressed:
+          bookingState.isLoading
+              ? null
+              : () async {
+                final ok = await ref
+                    .read(bookingControllerProvider.notifier)
+                    .submit(
+                      phoneNumber: phoneNumber,
+                      selectedDate: selectedDate,
+                    );
+
+                if (!ok) {
+                  if (!context.mounted) return;
+                  final errMsg = bookingState.maybeWhen(
+                    error: (e, _) => e.toString(),
+                    orElse: () => 'Failed to book game',
+                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(errMsg)));
+                  return; // 🚫 don’t navigate
+                }
+
+                if (!context.mounted) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ConfirmationScreen(
+                          phone: phoneNumber!,
+                          date: selectedDate!,
+                        ),
+                  ),
+                );
+              },
+
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF005AA7),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.deepPurple.shade200,
+        foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(vertical: 14),
       ),
-      child: const Text(
-        "Confirm Signup",
-        style: TextStyle(fontFamily: 'RockSalt', fontSize: 18),
+      child:
+          bookingState.isLoading
+              ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                child: const Text("Confirm Signup"),
+              ),
+    );
+  }
+}
+
+class CancelButton extends ConsumerWidget {
+  final String? phoneNumber;
+  final DateTime? selectedDate;
+
+  const CancelButton({
+    super.key,
+    required this.phoneNumber,
+    required this.selectedDate,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxWidth: 250, // set your max width here
+      ),
+      child: TextButton(
+        onPressed: () {
+          print('Pushed cancel button');
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => CancelScreen()),
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          //backgroundColor: Colors.deepPurple.shade200,
+          foregroundColor: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: const Text(
+            "Modify existing booking",
+            style: TextStyle(fontFamily: 'RockSalt', fontSize: 14),
+          ),
+        ),
       ),
     );
   }

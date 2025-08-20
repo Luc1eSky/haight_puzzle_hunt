@@ -74,5 +74,9 @@
       "enabled": true
     },
     "singleProjectMode": true
+  },
+  "emulatorDataPersistence": {
+    "import": "./emulator-data",
+    "exportOnExit": true
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:haight_puzzle_hunt/sign-up/presentation/pick_date_and_time.dart';
+import 'package:haight_puzzle_hunt/sign-up/presentation/title.dart';
+
+import '../../config/app_globals.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -16,7 +19,7 @@ class SignUpScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Title(text: "Haight Spirit Trail"),
+              const TitleName(text: "Haight Spirit Trail"),
               const SizedBox(height: 8),
               const ExplanationWidget(),
               const SizedBox(height: 24),
@@ -37,7 +40,7 @@ class ExplanationWidget extends StatelessWidget {
     return Column(
       children: [
         Text(
-          "A real-world puzzle hunt through Haight Ashbury.",
+          "A real-world puzzle adventure in the Haight",
           textAlign: TextAlign.center,
           style: GoogleFonts.chicle(
             fontSize: 22,
@@ -46,60 +49,32 @@ class ExplanationWidget extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'A small, mostly-forgotten group known as the Haight-Ashbury Ambassadors '
-          'have quietly worked to keep the spirit of the Haight alive. '
-          'Not by preaching, but by living it, sharing it, and inviting'
-          ' others in. '
-          'To join their ranks, you must walk the streets. Listen. Observe. Solve. '
-          'You are invited to complete the Ambassador Trail: a series of tasks and puzzles '
-          'designed to help you rediscover the values that built this place.',
+          '''
+A small, almost-forgotten group, the Haight-Ashbury Ambassadors, quietly keeps the spirit of the Haight alive. Not by preaching, but by living it and inviting others in. To join them, you must walk the streets, listen, observe, and solve the Haight Spirit Trail: a series of puzzles and tasks to rediscover the values that built this place and its people.
+''',
           style: GoogleFonts.abel(
             fontSize: 16,
             color: const Color.fromARGB(255, 0, 0, 0),
           ),
           textAlign: TextAlign.justify,
         ),
-        const SizedBox(height: 16),
+        //const SizedBox(height: 16),
         Text(
-          '📍 Haight Street, San Francisco\n'
-          '📆 Thursday through Sunday, 12:00 PM – 6:00 PM\n'
-          '⏱️ Around 2 hours\n'
-          '👥 2 to 4 curious souls\n'
+          '📍 $location\n'
+          //'📆 Thursday through Sunday, $startHour:00 PM – $lastTimeSlot:00
+          // PM\n'
+          '⏱️ Around $gameLengthHours hours\n'
+          '👥 $minPlayers to $maxPlayers curious souls\n'
           '💵 Small purchases (\$5–\$10) at local businesses\n',
           style: GoogleFonts.abel(fontSize: 16, color: Colors.black),
         ),
-        const SizedBox(height: 16),
+        //const SizedBox(height: 16),
         Text(
-          'Leave your number and pick your time. Ambassador Cass will be in touch.',
-          style: GoogleFonts.abel(fontSize: 16, color: Color(0xFFDA291C)),
+          'Enter your number. Our ambassador Cass will be in touch shortly',
+          style: GoogleFonts.abel(fontSize: 16, color: Colors.black),
           textAlign: TextAlign.center,
         ),
       ],
-    );
-  }
-}
-
-class Title extends StatelessWidget {
-  const Title({required this.text, super.key});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: GoogleFonts.chicle(
-        fontSize: 42,
-        color: const Color(0xFFDA291C), // Red accent
-        letterSpacing: 1.5,
-        shadows: [
-          const Shadow(
-            offset: Offset(2, 2),
-            color: Color(0xFF005AA7), // Deep blue shadow
-            blurRadius: 2,
-          ),
-        ],
-      ),
-      textAlign: TextAlign.center,
     );
   }
 }

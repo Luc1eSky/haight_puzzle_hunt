@@ -20,8 +20,9 @@ class TimestampConverter implements JsonConverter<DateTime, Timestamp> {
 enum GameState {
   gameBooked,
   verified,
-  started,
-  inProgress,
+  notVerified,
+  noShow,
+  playing,
   finished,
   canceled,
   abandoned,
@@ -32,9 +33,10 @@ class Game with _$Game {
   // const Game._();
   const factory Game({
     required String phoneNumber,
-    @TimestampConverter() required DateTime createdAt,
-    @TimestampConverter() required DateTime bookedDateTime,
+    @TimestampConverter() required DateTime bookingSubmissionAt,
+    @TimestampConverter() required DateTime bookedGameDateTime,
     required GameState gameState,
+    @Default(0) int currentPuzzleId,
   }) = _Game;
 
   factory Game.fromJson(Map<String, Object?> json) => _$GameFromJson(json);

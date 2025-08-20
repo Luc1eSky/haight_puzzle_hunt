@@ -8,27 +8,31 @@ part of 'game.dart';
 
 _$GameImpl _$$GameImplFromJson(Map<String, dynamic> json) => _$GameImpl(
       phoneNumber: json['phoneNumber'] as String,
-      createdAt:
-          const TimestampConverter().fromJson(json['createdAt'] as Timestamp),
-      bookedDateTime: const TimestampConverter()
-          .fromJson(json['bookedDateTime'] as Timestamp),
+      bookingSubmissionAt: const TimestampConverter()
+          .fromJson(json['bookingSubmissionAt'] as Timestamp),
+      bookedGameDateTime: const TimestampConverter()
+          .fromJson(json['bookedGameDateTime'] as Timestamp),
       gameState: $enumDecode(_$GameStateEnumMap, json['gameState']),
+      currentPuzzleId: (json['currentPuzzleId'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$$GameImplToJson(_$GameImpl instance) =>
     <String, dynamic>{
       'phoneNumber': instance.phoneNumber,
-      'createdAt': const TimestampConverter().toJson(instance.createdAt),
-      'bookedDateTime':
-          const TimestampConverter().toJson(instance.bookedDateTime),
+      'bookingSubmissionAt':
+          const TimestampConverter().toJson(instance.bookingSubmissionAt),
+      'bookedGameDateTime':
+          const TimestampConverter().toJson(instance.bookedGameDateTime),
       'gameState': _$GameStateEnumMap[instance.gameState]!,
+      'currentPuzzleId': instance.currentPuzzleId,
     };
 
 const _$GameStateEnumMap = {
   GameState.gameBooked: 'gameBooked',
   GameState.verified: 'verified',
-  GameState.started: 'started',
-  GameState.inProgress: 'inProgress',
+  GameState.notVerified: 'notVerified',
+  GameState.noShow: 'noShow',
+  GameState.playing: 'playing',
   GameState.finished: 'finished',
   GameState.canceled: 'canceled',
   GameState.abandoned: 'abandoned',

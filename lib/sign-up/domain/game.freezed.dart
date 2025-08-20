@@ -22,10 +22,11 @@ Game _$GameFromJson(Map<String, dynamic> json) {
 mixin _$Game {
   String get phoneNumber => throw _privateConstructorUsedError;
   @TimestampConverter()
-  DateTime get createdAt => throw _privateConstructorUsedError;
+  DateTime get bookingSubmissionAt => throw _privateConstructorUsedError;
   @TimestampConverter()
-  DateTime get bookedDateTime => throw _privateConstructorUsedError;
+  DateTime get bookedGameDateTime => throw _privateConstructorUsedError;
   GameState get gameState => throw _privateConstructorUsedError;
+  int get currentPuzzleId => throw _privateConstructorUsedError;
 
   /// Serializes this Game to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -43,9 +44,10 @@ abstract class $GameCopyWith<$Res> {
   @useResult
   $Res call(
       {String phoneNumber,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime bookedDateTime,
-      GameState gameState});
+      @TimestampConverter() DateTime bookingSubmissionAt,
+      @TimestampConverter() DateTime bookedGameDateTime,
+      GameState gameState,
+      int currentPuzzleId});
 }
 
 /// @nodoc
@@ -64,27 +66,32 @@ class _$GameCopyWithImpl<$Res, $Val extends Game>
   @override
   $Res call({
     Object? phoneNumber = null,
-    Object? createdAt = null,
-    Object? bookedDateTime = null,
+    Object? bookingSubmissionAt = null,
+    Object? bookedGameDateTime = null,
     Object? gameState = null,
+    Object? currentPuzzleId = null,
   }) {
     return _then(_value.copyWith(
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
+      bookingSubmissionAt: null == bookingSubmissionAt
+          ? _value.bookingSubmissionAt
+          : bookingSubmissionAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      bookedDateTime: null == bookedDateTime
-          ? _value.bookedDateTime
-          : bookedDateTime // ignore: cast_nullable_to_non_nullable
+      bookedGameDateTime: null == bookedGameDateTime
+          ? _value.bookedGameDateTime
+          : bookedGameDateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
       gameState: null == gameState
           ? _value.gameState
           : gameState // ignore: cast_nullable_to_non_nullable
               as GameState,
+      currentPuzzleId: null == currentPuzzleId
+          ? _value.currentPuzzleId
+          : currentPuzzleId // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -98,9 +105,10 @@ abstract class _$$GameImplCopyWith<$Res> implements $GameCopyWith<$Res> {
   @useResult
   $Res call(
       {String phoneNumber,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime bookedDateTime,
-      GameState gameState});
+      @TimestampConverter() DateTime bookingSubmissionAt,
+      @TimestampConverter() DateTime bookedGameDateTime,
+      GameState gameState,
+      int currentPuzzleId});
 }
 
 /// @nodoc
@@ -116,27 +124,32 @@ class __$$GameImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? phoneNumber = null,
-    Object? createdAt = null,
-    Object? bookedDateTime = null,
+    Object? bookingSubmissionAt = null,
+    Object? bookedGameDateTime = null,
     Object? gameState = null,
+    Object? currentPuzzleId = null,
   }) {
     return _then(_$GameImpl(
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
+      bookingSubmissionAt: null == bookingSubmissionAt
+          ? _value.bookingSubmissionAt
+          : bookingSubmissionAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      bookedDateTime: null == bookedDateTime
-          ? _value.bookedDateTime
-          : bookedDateTime // ignore: cast_nullable_to_non_nullable
+      bookedGameDateTime: null == bookedGameDateTime
+          ? _value.bookedGameDateTime
+          : bookedGameDateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
       gameState: null == gameState
           ? _value.gameState
           : gameState // ignore: cast_nullable_to_non_nullable
               as GameState,
+      currentPuzzleId: null == currentPuzzleId
+          ? _value.currentPuzzleId
+          : currentPuzzleId // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -146,9 +159,10 @@ class __$$GameImplCopyWithImpl<$Res>
 class _$GameImpl implements _Game {
   const _$GameImpl(
       {required this.phoneNumber,
-      @TimestampConverter() required this.createdAt,
-      @TimestampConverter() required this.bookedDateTime,
-      required this.gameState});
+      @TimestampConverter() required this.bookingSubmissionAt,
+      @TimestampConverter() required this.bookedGameDateTime,
+      required this.gameState,
+      this.currentPuzzleId = 0});
 
   factory _$GameImpl.fromJson(Map<String, dynamic> json) =>
       _$$GameImplFromJson(json);
@@ -157,16 +171,19 @@ class _$GameImpl implements _Game {
   final String phoneNumber;
   @override
   @TimestampConverter()
-  final DateTime createdAt;
+  final DateTime bookingSubmissionAt;
   @override
   @TimestampConverter()
-  final DateTime bookedDateTime;
+  final DateTime bookedGameDateTime;
   @override
   final GameState gameState;
+  @override
+  @JsonKey()
+  final int currentPuzzleId;
 
   @override
   String toString() {
-    return 'Game(phoneNumber: $phoneNumber, createdAt: $createdAt, bookedDateTime: $bookedDateTime, gameState: $gameState)';
+    return 'Game(phoneNumber: $phoneNumber, bookingSubmissionAt: $bookingSubmissionAt, bookedGameDateTime: $bookedGameDateTime, gameState: $gameState, currentPuzzleId: $currentPuzzleId)';
   }
 
   @override
@@ -176,18 +193,20 @@ class _$GameImpl implements _Game {
             other is _$GameImpl &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.bookedDateTime, bookedDateTime) ||
-                other.bookedDateTime == bookedDateTime) &&
+            (identical(other.bookingSubmissionAt, bookingSubmissionAt) ||
+                other.bookingSubmissionAt == bookingSubmissionAt) &&
+            (identical(other.bookedGameDateTime, bookedGameDateTime) ||
+                other.bookedGameDateTime == bookedGameDateTime) &&
             (identical(other.gameState, gameState) ||
-                other.gameState == gameState));
+                other.gameState == gameState) &&
+            (identical(other.currentPuzzleId, currentPuzzleId) ||
+                other.currentPuzzleId == currentPuzzleId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, phoneNumber, createdAt, bookedDateTime, gameState);
+  int get hashCode => Object.hash(runtimeType, phoneNumber, bookingSubmissionAt,
+      bookedGameDateTime, gameState, currentPuzzleId);
 
   /// Create a copy of Game
   /// with the given fields replaced by the non-null parameter values.
@@ -208,9 +227,10 @@ class _$GameImpl implements _Game {
 abstract class _Game implements Game {
   const factory _Game(
       {required final String phoneNumber,
-      @TimestampConverter() required final DateTime createdAt,
-      @TimestampConverter() required final DateTime bookedDateTime,
-      required final GameState gameState}) = _$GameImpl;
+      @TimestampConverter() required final DateTime bookingSubmissionAt,
+      @TimestampConverter() required final DateTime bookedGameDateTime,
+      required final GameState gameState,
+      final int currentPuzzleId}) = _$GameImpl;
 
   factory _Game.fromJson(Map<String, dynamic> json) = _$GameImpl.fromJson;
 
@@ -218,12 +238,14 @@ abstract class _Game implements Game {
   String get phoneNumber;
   @override
   @TimestampConverter()
-  DateTime get createdAt;
+  DateTime get bookingSubmissionAt;
   @override
   @TimestampConverter()
-  DateTime get bookedDateTime;
+  DateTime get bookedGameDateTime;
   @override
   GameState get gameState;
+  @override
+  int get currentPuzzleId;
 
   /// Create a copy of Game
   /// with the given fields replaced by the non-null parameter values.
